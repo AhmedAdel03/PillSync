@@ -13,7 +13,7 @@ public class MemberRepo(AppDbContext context) : IMemberRepo
 
     public async Task<User> GetByEmail(string EmailAddress)
     {
-        var user= await context.Users.FirstOrDefaultAsync(x=>x.EmailAddress==EmailAddress);
+        var user= await context.Users.Include(x=>x.Member).FirstOrDefaultAsync(x=>x.EmailAddress==EmailAddress);
         return user;
     }
 

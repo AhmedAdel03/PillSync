@@ -16,9 +16,22 @@ namespace PillSync.Controllers
             if (result == null) return BadRequest("Email Already exist");
             else
             {
-                return  result;
+                return Ok(result);
             } 
 
         }
+         [HttpPost("Login")]
+public async Task<ActionResult<UserDTOs>> Login(LoginDTOs loginDTOs)
+{
+    
+        var result = await accountService.Login(loginDTOs);
+
+        if (result == null)
+            return Unauthorized("Invalid email or password");
+
+        return Ok(result);
+     
+         
     }
 }
+    } 

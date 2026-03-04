@@ -10,11 +10,32 @@ namespace PillSync.Services;
 
 public class AccountService(IMemberRepo memberRepo) : IAccountService
 {
-    public async Task<UserDTOs> Login(LoginDTOs loginDTOs)
+    public async Task<UserDTOs?> Login(LoginDTOs loginDTOs)
     {
-         
-return null;
+     var UserExist= await memberRepo.GetByEmail(loginDTOs.EmailAddress);
+     if (UserExist==null)
+        {
+             return null;
+        }
+     else
+        {
+             
+            var Hmac=new HMACSHA3_512(UserExist.PasswordKey);
+            var ComputeHash=Hmac.ComputeHash(Encoding.UTF8.GetBytes(loginDTOs.password));
+            if(ComputeHash.SequenceEqual(UserExist.Password))
+            {
+                return UserExtension.ToUserDTOs(UserExist);
+                
+            }
+            else
+            {
+                return null;
+            }
 
+            
+        }
+         
+ 
     }
 
     public async Task<UserDTOs> Register(RegisterDTOs registerDTOs)
@@ -24,7 +45,7 @@ return null;
         else
         {
             var Hmac=new HMACSHA3_512();
-         var password=Hmac.ComputeHash(Encoding.UTF32.GetBytes(registerDTOs.password));
+         var password=Hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDTOs.password));
          var passwordKey=Hmac.Key;
          var newUser=new User
          {
