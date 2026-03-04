@@ -1,0 +1,24 @@
+using System;
+using Microsoft.EntityFrameworkCore;
+using PillSync.Entites;
+
+namespace PillSync.Data.Repo;
+
+public class MemberRepo(AppDbContext context) : IMemberRepo
+{
+    public async Task AddNewUser(User user)
+    {
+        await context.Users.AddAsync(user);
+    }
+
+    public async Task<User> GetByEmail(string EmailAddress)
+    {
+        var user= await context.Users.FirstOrDefaultAsync(x=>x.EmailAddress==EmailAddress);
+        return user;
+    }
+
+    public async Task SaveChanges()
+    {
+        await context.SaveChangesAsync();
+    }
+}
