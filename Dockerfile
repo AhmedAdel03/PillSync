@@ -11,6 +11,7 @@ COPY . .
 
 # FIX: Move into the project directory before publishing
 WORKDIR "/src/PillSync"
+RUN echo "{}" > PillSync/appsettings.json
 RUN dotnet publish "PillSync.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Runtime stage
