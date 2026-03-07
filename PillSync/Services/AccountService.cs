@@ -5,10 +5,11 @@ using PillSync.Data.Repo;
 using PillSync.DTOs;
 using PillSync.Entites;
 using PillSync.Extention;
+using PillSync.Services.Interface;
 
 namespace PillSync.Services;
 
-public class AccountService(IMemberRepo memberRepo) : IAccountService
+public class AccountService(IMemberRepo memberRepo,ITokenService tokenService) : IAccountService
 {
     public async Task<UserDTOs?> Login(LoginDTOs loginDTOs)
     {
@@ -24,7 +25,7 @@ public class AccountService(IMemberRepo memberRepo) : IAccountService
             var ComputeHash=Hmac.ComputeHash(Encoding.UTF8.GetBytes(loginDTOs.password));
             if(ComputeHash.SequenceEqual(UserExist.Password))
             {
-                return UserExtension.ToUserDTOs(UserExist);
+                return UserExtension.ToUserDTOs(UserExist,tokenService);
                 
             }
             else
@@ -61,7 +62,7 @@ public class AccountService(IMemberRepo memberRepo) : IAccountService
          };
         await memberRepo.AddNewUser(newUser);
         await memberRepo.SaveChanges();
-        return UserExtension.ToUserDTOs(newUser);
+        return UserExtension.ToUserDTOs(newUser, tokenService);
  
         }
         

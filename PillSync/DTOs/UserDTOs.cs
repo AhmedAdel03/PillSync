@@ -10,5 +10,5 @@ public class UserDTOs
     public required string FullName { get; set; }
     public string? ImageURl { get; set; }
     public bool IsVerifed { get; set; }
-   // public required string Token { get; set; }
+    public required string Token { get; set; }
 }
