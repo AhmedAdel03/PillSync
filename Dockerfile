@@ -2,16 +2,19 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-# FIX: Point to the subfolder for the csproj
+# Copy the project file from the subfolder
 COPY ["PillSync/PillSync.csproj", "PillSync/"]
 RUN dotnet restore "PillSync/PillSync.csproj"
 
 # Copy everything else
 COPY . .
 
-# FIX: Move into the project directory before publishing
+# Move into the project directory
 WORKDIR "/src/PillSync"
-RUN echo "{}" > PillSync/appsettings.json
+
+# Create the empty file to satisfy the compiler
+RUN echo "{}" > appsettings.json
+
 RUN dotnet publish "PillSync.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Runtime stage
