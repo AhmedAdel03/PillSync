@@ -21,6 +21,9 @@
     <ExcludeFromSingleFile>true</ExcludeFromSingleFile> 
   </Content>
 </ItemGroup>
+<ItemGroup>
+  <ProjectReference Include="D:\turboSMTP-csharp-main\NetStandard\SDK\turboSMTP\turboSMTP.csproj" />
+</ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0" />

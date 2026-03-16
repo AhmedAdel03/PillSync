@@ -10,5 +10,6 @@ public class MemberConfig : IEntityTypeConfiguration<Member>
     public void Configure(EntityTypeBuilder<Member> builder)
     {
         builder.HasMany(x=>x.Photos).WithOne(x=>x.Member).HasForeignKey(x=>x.MemberId);
+        builder.HasMany(x=>x.OTPs).WithOne(x=>x.member).HasForeignKey(x=>x.MemberId);
     }
 }

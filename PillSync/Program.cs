@@ -6,6 +6,7 @@ using PillSync.Data;
 using PillSync.Data.Repo;
 using PillSync.Services;
 using PillSync.Services.Interface;
+using TurboSMTP;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,8 @@ builder.Services.AddDbContext<AppDbContext>(option =>
 builder.Services.AddScoped<IMemberRepo, MemberRepo>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IOTP, OTPService>();
+
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
@@ -35,6 +38,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     };
 
 });
+builder.Services.AddSingleton<TurboSMTPClient>(sp =>
+{
+var turboSettings = builder.Configuration.GetSection("TurboSetting");
+    var config= new TurboSMTPClientConfiguration.Builder()
+                .SetConsumerKey(turboSettings["Consumer-Key"])
+                .SetConsumerSecret(turboSettings["Consumer-Secret"])
+                .SetServerURL(turboSettings["ServerUrl"])
+                .SetSendServerURL(turboSettings["SendServerUrl"])
+                .SetTimeZone("-03:00")
+                .Build();
+                return new TurboSMTPClient(config);
+});
+
 
 var app = builder.Build();
 
@@ -49,7 +65,7 @@ if (app.Environment.IsDevelopment())
 app.UseAuthorization();
 app.MapControllers();
 
-// Simple Health Check for Render
+//Check for Render
 app.MapGet("/", () => "PillSync API is running!");
 
 app.Run();

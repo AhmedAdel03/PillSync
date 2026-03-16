@@ -17,6 +17,17 @@ public class MemberRepo(AppDbContext context) : IMemberRepo
         return user;
     }
 
+    public async Task<Member> GetMemberOTPs(string memberid)
+    {
+        var member=await context.Members.Include(x=>x.OTPs.Where(x=>x.IsRevoked==false)).FirstOrDefaultAsync(x=>x.Id==memberid);
+        return member;
+    }
+
+    public async Task PostOtp(OTP oTP)
+    {
+         await context.AddAsync(oTP);
+    }
+
     public async Task SaveChanges()
     {
         await context.SaveChangesAsync();

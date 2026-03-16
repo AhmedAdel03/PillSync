@@ -1,13 +1,16 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PillSync.DTOs;
 using PillSync.Services;
+using PillSync.Services.Interface;
 
 namespace PillSync.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class Account(IAccountService accountService) : ControllerBase
+    public class Account(IAccountService accountService,IOTP oTPservice) : ControllerBase
     {
         [HttpPost("Register")]
         public async Task<ActionResult<UserDTOs>> Register(RegisterDTOs registerDTOs)
@@ -17,21 +20,30 @@ namespace PillSync.Controllers
             else
             {
                 return Ok(result);
-            } 
+            }
 
         }
-         [HttpPost("Login")]
-public async Task<ActionResult<UserDTOs>> Login(LoginDTOs loginDTOs)
-{
-    
-        var result = await accountService.Login(loginDTOs);
+        [HttpPost("Login")]
+        public async Task<ActionResult<UserDTOs>> Login(LoginDTOs loginDTOs)
+        {
 
-        if (result == null)
-            return Unauthorized("Invalid email or password");
+            var result = await accountService.Login(loginDTOs);
 
-        return Ok(result);
-     
-         
+            if (result == null)
+                return Unauthorized("Invalid email or password");
+
+            return Ok(result);
+
+
+        }
+        [Authorize]
+        [HttpPost("Send-otp")]
+       public async Task<ActionResult> SendOtp()
+        {
+            var email=User.FindFirstValue(ClaimTypes.Email);
+            await oTPservice.SendVerifyOTP(email);
+            return Ok();
+        }
     }
+
 }
-    } 

@@ -15,5 +15,7 @@ public class Member
       [JsonIgnore]
       public User User { get; set; }
       public List<Photo> Photos { get; set; }=[];
+      public List<OTP> OTPs { get; set; }=[];
+
 
 }
