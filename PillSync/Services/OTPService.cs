@@ -1,6 +1,7 @@
 using System;
 using System.Security.Cryptography;
 using PillSync.Data.Repo;
+using PillSync.DTOs;
 using PillSync.Entites;
 using PillSync.Services.Interface;
 using TurboSMTP;
@@ -10,7 +11,7 @@ namespace PillSync.Services;
 
 public class OTPService (IMemberRepo memberRepo, TurboSMTPClient turboSMTPClient): IOTP
 {
-    public async Task SendVerifyOTP(string memberEmail)
+    public async Task SendOTP(string memberEmail)
     {
         var member= await memberRepo.GetByEmail(memberEmail);
         var otpCode=CreateRandomCode();
@@ -33,15 +34,11 @@ public class OTPService (IMemberRepo memberRepo, TurboSMTPClient turboSMTPClient
     return randomNumber.ToString("D5");
     }
 
-    private async Task RevokeOTP(string MemberId)
+    private async Task RevokeOTP( OTP oTP)
     {
-     var memberotp=await memberRepo.GetMemberOTPs(MemberId);
-     if(memberotp==null||memberotp.OTPs==null) return;
-     var activeOTP=memberotp.OTPs.Where(x=>x.IsRevoked==false&& (DateTime.UtcNow - x.Timecreated).TotalMinutes <= 5);
-     foreach (var otp in activeOTP)
-    {
-        otp.IsRevoked = true;
-    }
+        
+           oTP.IsRevoked=true;
+       
     await memberRepo.SaveChanges();         
     }
 
@@ -57,7 +54,34 @@ public class OTPService (IMemberRepo memberRepo, TurboSMTPClient turboSMTPClient
 
             
             //Send your Email Message
-            var result = await turboSMTPClient.Emails.SendAsync(emailMessage);
+             await turboSMTPClient.Emails.SendAsync(emailMessage);
     }
 
+    public async Task<bool> VerifyOTP(OTPCodeDTO codeDTO, string memberId)
+{
+    var member = await memberRepo.GetMemberOTPs(memberId);
+    
+    
+    if (member?.OTPs == null || !member.OTPs.Any()) 
+    {
+        return false;
+    }
+    var validOtp = member.OTPs.FirstOrDefault(x => 
+        x.OTPCode == codeDTO.Code && 
+        (DateTime.UtcNow - x.Timecreated).TotalMinutes <= 5);
+
+    if (validOtp == null) 
+    {
+        return false;
+    }
+
+    await RevokeOTP(validOtp);
+     member.IsVerifed=true;
+    await memberRepo.SaveChanges();
+   
+
+    return true;
+}
+
+    
 }

@@ -41,8 +41,20 @@ namespace PillSync.Controllers
        public async Task<ActionResult> SendOtp()
         {
             var email=User.FindFirstValue(ClaimTypes.Email);
-            await oTPservice.SendVerifyOTP(email);
+            await oTPservice.SendOTP(email);
             return Ok();
+        }
+        [Authorize]
+        [HttpPost("Verify-otp")]
+       public async Task<ActionResult> VerifyOtp(OTPCodeDTO code)
+        {
+            var memberId=User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if(memberId==null) return BadRequest();
+            var verification= await oTPservice.VerifyOTP(code,memberId);
+             if(verification==false)
+             return BadRequest("Wrong code");
+             else 
+             return Ok("member Is verifed");
         }
     }
 
