@@ -22,7 +22,7 @@
   </Content>
 </ItemGroup>
 <ItemGroup>
-  <ProjectReference Include="D:\turboSMTP-csharp-main\NetStandard\SDK\turboSMTP\turboSMTP.csproj" />
+  <ProjectReference Include="D:\PillSync\PillSync\EmailVerify\turboSMTP\turboSMTP.csproj" />
 </ItemGroup>
 
   <ItemGroup>
