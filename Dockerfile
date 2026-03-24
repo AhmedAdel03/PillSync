@@ -1,7 +1,11 @@
 # Build stage
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
+ 
 
+# Copy the SDK projects (Render needs these to restore dependencies)
+COPY ["smtp/NetStandard/SDK/turboSMTP/turboSMTP.csproj", "smtp/NetStandard/SDK/turboSMTP/"]
+COPY ["SDK/API.TurboSMTP/API.TurboSMTP.csproj", "SDK/API.TurboSMTP/"]
 # Copy the project file from the subfolder
 COPY ["PillSync/PillSync.csproj", "PillSync/"]
 RUN dotnet restore "PillSync/PillSync.csproj"
