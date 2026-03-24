@@ -2,17 +2,20 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-# Copy the project file from the subfolder
+# 1. Copy the project file (Relative to your build context)
+# If you run 'docker build' from the Root, use "PillSync/"
 COPY ["PillSync/PillSync.csproj", "PillSync/"]
+
+# 2. Restore using the path inside the container
 RUN dotnet restore "PillSync/PillSync.csproj"
 
-# Copy everything else
+# 3. Copy the rest of the source code
 COPY . .
 
-# Move into the project directory
+# 4. Move to the project directory to publish
 WORKDIR "/src/PillSync"
 
-# Create the empty file to satisfy the compiler
+# Create a dummy appsettings if needed for the build
 RUN echo "{}" > appsettings.json
 
 RUN dotnet publish "PillSync.csproj" -c Release -o /app/publish /p:UseAppHost=false
@@ -21,7 +24,7 @@ RUN dotnet publish "PillSync.csproj" -c Release -o /app/publish /p:UseAppHost=fa
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
 
-# Ensure .NET listens on the port Render uses
+# Render often uses 8080 or 10000; ensure this matches your dashboard
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
 
