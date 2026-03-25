@@ -57,10 +57,9 @@ public class OTPService (IMemberRepo memberRepo,IConfiguration config ): IOTP
     var payload = new
     {
         from = "pillsync@domain.com",
-         
         to =email,
         subject = "PillSync Verification Code",
-        html = body
+        content = body
     };
 
     var json = System.Text.Json.JsonSerializer.Serialize(payload);
