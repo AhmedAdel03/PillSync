@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Net.Mail;
 using System.Security.Cryptography;
+using System.Text;
 using PillSync.Data.Repo;
 using PillSync.DTOs;
 using PillSync.Entites;
@@ -43,31 +44,38 @@ public class OTPService (IMemberRepo memberRepo,IConfiguration config ): IOTP
     await memberRepo.SaveChanges();         
     }
 
-    private async Task SendToEmailServer(string email, string Body)
+    private async Task SendToEmailServer(string email, string body)
+{
+    using var httpClient = new HttpClient();
+
+    var url = "https://api.turbo-smtp.com/api/v2/mail/send";
+
+    // Set required headers
+    httpClient.DefaultRequestHeaders.Add("ConsumerKey", config["TurboSetting:Consumer-Key"]);
+    httpClient.DefaultRequestHeaders.Add("ConsumerSecret", config["TurboSetting:Consumer-Secret"]);
+
+    var payload = new
     {
-        
-      var smtpClient = new SmtpClient("pro.turbo-smtp.com")
-    {
-        Port = 587,
-        Credentials = new NetworkCredential(
-            config["TurboSetting:Consumer-Key"], 
-            config["TurboSetting:Consumer-Secret"]
-        ),
-        EnableSsl = true
+        from = "pillsync@domain.com",
+         
+        to =email,
+        subject = "PillSync Verification Code",
+        html = body
     };
 
-    var mail = new MailMessage
+    var json = System.Text.Json.JsonSerializer.Serialize(payload);
+
+    var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+    var response = await httpClient.PostAsync(url, content);
+
+    var responseBody = await response.Content.ReadAsStringAsync();
+
+    if (!response.IsSuccessStatusCode)
     {
-        From = new MailAddress("pillsync@domain.com"),
-        Subject = "PillSync Verification Code",
-        Body = Body,
-        IsBodyHtml = true
-    };
-
-    mail.To.Add(email);
-
-    await smtpClient.SendMailAsync(mail);
+        throw new Exception($"TurboSMTP Error: {response.StatusCode} - {responseBody}");
     }
+}
 
     public async Task<bool> VerifyOTP(OTPCodeDTO codeDTO, string memberId)
 {
