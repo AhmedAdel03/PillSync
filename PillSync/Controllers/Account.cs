@@ -41,6 +41,7 @@ namespace PillSync.Controllers
        public async Task<ActionResult> SendOtp()
         {
             var email=User.FindFirstValue(ClaimTypes.Email);
+            if(email==null) return Unauthorized();
             await oTPservice.SendOTP(email);
             return Ok();
         }
@@ -56,6 +57,16 @@ namespace PillSync.Controllers
              else 
              return Ok("member Is verifed");
         }
+        [Authorize]
+        [HttpPost("EditProfile")]
+    public async Task<ActionResult<UserDTOs>>EditProfile(EditProfileDTO editProfileDTO)
+        {
+          var memberId=User.FindFirstValue(ClaimTypes.NameIdentifier);
+          var result= await accountService.EditProfile(editProfileDTO,memberId);
+         return result;
+ 
+        }
     }
+   
 
 }

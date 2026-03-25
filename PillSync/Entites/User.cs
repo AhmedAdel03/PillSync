@@ -14,7 +14,9 @@ public class User
 
     public required byte[] Password { get; set; }
     public required byte[]  PasswordKey { get; set; }
-    public string? PhoneNumber { get; set; }
+     public DateOnly DateOfBirth { get; set; }
+
+    public required string PhoneNumber { get; set; }
     [JsonIgnore]
     public  Member Member { get; set; }
  

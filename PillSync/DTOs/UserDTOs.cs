@@ -11,4 +11,7 @@ public class UserDTOs
     public string? ImageURl { get; set; }
     public bool IsVerifed { get; set; }
     public required string Token { get; set; }
+  public required string PhoneNumber { get; set; }
+
+    public int Age { get; set; }
 }

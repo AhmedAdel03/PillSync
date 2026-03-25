@@ -15,11 +15,27 @@ public static class UserExtension
             FullName=user.FullName,
             EmailAddress=user.EmailAddress,
             IsVerifed=user.Member.IsVerifed,
-            Token=tokenService.CreateToken(user)
+            Token=tokenService.CreateToken(user),
+            Age=CalculateAge(user.DateOfBirth),
+            PhoneNumber=user.PhoneNumber
 
         };
         return newUser;
         
     }
+
+
+    public static int CalculateAge(DateOnly dateOfBirth)
+{
+    var today = DateOnly.FromDateTime(DateTime.Today);
+    var age = today.Year - dateOfBirth.Year;
+
+    if (dateOfBirth > today.AddYears(-age)) 
+    {
+        age--;
+    }
+
+    return age;
+}
     
 }

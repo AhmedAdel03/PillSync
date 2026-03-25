@@ -11,6 +11,22 @@ namespace PillSync.Services;
 
 public class AccountService(IMemberRepo memberRepo,ITokenService tokenService) : IAccountService
 {
+    public async Task<UserDTOs> EditProfile(EditProfileDTO editProfileDTO,string memberId)
+    {
+       var CurrentUserData= await memberRepo.GetByID(memberId);
+       if(CurrentUserData==null)
+        {
+            return null;
+        }
+        CurrentUserData.EmailAddress=editProfileDTO.EmailAddress;
+        CurrentUserData.FullName=editProfileDTO.FullName;
+        CurrentUserData.DateOfBirth=editProfileDTO.DateOfBirth;
+        CurrentUserData.PhoneNumber=editProfileDTO.PhoneNumber;
+        await memberRepo.SaveChanges();
+        return UserExtension.ToUserDTOs(CurrentUserData,tokenService);
+
+    }
+
     public async Task<UserDTOs?> Login(LoginDTOs loginDTOs)
     {
      var UserExist= await memberRepo.GetByEmail(loginDTOs.EmailAddress);
@@ -54,7 +70,9 @@ public class AccountService(IMemberRepo memberRepo,ITokenService tokenService) :
            EmailAddress=registerDTOs.EmailAddress,
            Password=password,
            PasswordKey=passwordKey,
-           Member=new Member
+           DateOfBirth=registerDTOs.DateOfBirth,
+           PhoneNumber=registerDTOs.PhoneNumber,
+            Member=new Member
            {
                FullName=registerDTOs.FullName,
                IsVerifed=false

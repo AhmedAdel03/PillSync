@@ -27,9 +27,7 @@ public class OTPService (IMemberRepo memberRepo,IConfiguration config ): IOTP
         await memberRepo.PostOtp(otp);
         await memberRepo.SaveChanges();
     }
-
-    
-
+ 
     private string CreateRandomCode()
     {
         int randomNumber = RandomNumberGenerator.GetInt32(10000, 100000);

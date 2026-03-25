@@ -10,7 +10,7 @@ public interface IMemberRepo
     public Task AddNewUser(User user);
     public Task<Member> GetMemberOTPs(string memberid);
         public Task PostOtp(OTP oTP);
-
+public   Task<User> GetByID(string UserId);
  
 
 }

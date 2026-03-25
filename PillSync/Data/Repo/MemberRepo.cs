@@ -10,6 +10,11 @@ public class MemberRepo(AppDbContext context) : IMemberRepo
     {
         await context.Users.AddAsync(user);
     }
+      public async Task<User> GetByID(string UserId)
+    {
+        var user= await context.Users.Include(x=>x.Member).FirstOrDefaultAsync(x=>x.Id==UserId);
+        return user;
+    }
 
     public async Task<User> GetByEmail(string EmailAddress)
     {
