@@ -1,15 +1,16 @@
 using System;
+using System.Net;
+using System.Net.Mail;
 using System.Security.Cryptography;
 using PillSync.Data.Repo;
 using PillSync.DTOs;
 using PillSync.Entites;
 using PillSync.Services.Interface;
-using TurboSMTP;
-using TurboSMTP.Domain;
+ 
 
 namespace PillSync.Services;
 
-public class OTPService (IMemberRepo memberRepo, TurboSMTPClient turboSMTPClient): IOTP
+public class OTPService (IMemberRepo memberRepo,IConfiguration config ): IOTP
 {
     public async Task SendOTP(string memberEmail)
     {
@@ -42,19 +43,30 @@ public class OTPService (IMemberRepo memberRepo, TurboSMTPClient turboSMTPClient
     await memberRepo.SaveChanges();         
     }
 
-    private async Task SendToEmailServer(string email, string Code)
+    private async Task SendToEmailServer(string email, string Body)
     {
         
-        var emailMessage = new EmailMessage.Builder()
-                .SetFrom("Pillsync@yourdomain.com")
-                .AddTo(email)
-                .SetSubject("PillSync verification Mail")
-                .SetHtmlContent($"Your Verfiy Code is <b>{Code}</b>.")
-                .Build();
+      var smtpClient = new SmtpClient("pro.turbo-smtp.com")
+    {
+        Port = 587,
+        Credentials = new NetworkCredential(
+            config["TurboSetting:Consumer-Key"], 
+            config["TurboSetting:Consumer-Secret"]
+        ),
+        EnableSsl = true
+    };
 
-            
-            //Send your Email Message
-             await turboSMTPClient.Emails.SendAsync(emailMessage);
+    var mail = new MailMessage
+    {
+        From = new MailAddress("pillsync@domain.com"),
+        Subject = "PillSync Verification Code",
+        Body = Body,
+        IsBodyHtml = true
+    };
+
+    mail.To.Add(email);
+
+    await smtpClient.SendMailAsync(mail);
     }
 
     public async Task<bool> VerifyOTP(OTPCodeDTO codeDTO, string memberId)

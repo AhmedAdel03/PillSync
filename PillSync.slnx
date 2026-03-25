@@ -1,5 +1,3 @@
 <Solution>
   <Project Path="PillSync/PillSync.csproj" />
-  <Project Path="smtp/NetStandard/SDK/turboSMTP/turboSMTP.csproj" />
-  <Project Path="smtp/NetStandard/SDK/API.TurboSMTP/API.TurboSMTP.csproj" />
 </Solution>
