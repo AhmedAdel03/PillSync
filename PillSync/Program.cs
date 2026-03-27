@@ -22,6 +22,8 @@ builder.Services.AddScoped<IMemberRepo, MemberRepo>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IOTP, OTPService>();
+builder.Services.AddScoped<IMedicineRepo, MedicineRepo>();
+
 
 
 builder.Services.AddControllers();

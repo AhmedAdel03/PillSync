@@ -14,6 +14,6 @@ public class Member
       public User User { get; set; }
       public List<Photo> Photos { get; set; }=[];
       public List<OTP> OTPs { get; set; }=[];
-
+     public List<Medicine> Medicines { get; set; }=[];
 
 }

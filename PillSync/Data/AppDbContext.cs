@@ -10,10 +10,13 @@ public DbSet<User> Users { get; set; }
 public DbSet<Member> Members { get; set; }
 public DbSet<Photo> Photos { get; set; }
 public DbSet<OTP> OTPCode { get; set; }
+public DbSet<Medicine> Medicine { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+        
     }
 }
