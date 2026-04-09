@@ -75,30 +75,43 @@ public class OTPService (IMemberRepo memberRepo,IConfiguration config ): IOTP
 }
 
     public async Task<bool> VerifyOTP(OTPCodeDTO codeDTO, string memberId)
-{
-    var member = await memberRepo.GetMemberOTPs(memberId);
-    
-    
-    if (member?.OTPs == null || !member.OTPs.Any()) 
     {
-        return false;
-    }
-    var validOtp = member.OTPs.FirstOrDefault(x => 
-        x.OTPCode == codeDTO.Code && 
-        (DateTime.UtcNow - x.Timecreated).TotalMinutes <= 5);
-
-    if (validOtp == null) 
-    {
-        return false;
+        var member = await memberRepo.GetMemberOTPs(memberId);
+        return await VerifyOtpCore(codeDTO, member, updateVerificationStatus: true);
     }
 
-    await RevokeOTP(validOtp);
-     member.IsVerifed=true;
-    await memberRepo.SaveChanges();
-   
+    public async Task<bool> VerifyPasswordResetOTP(OTPCodeDTO codeDTO, string memberId)
+    {
+        var member = await memberRepo.GetMemberOTPs(memberId);
+        return await VerifyOtpCore(codeDTO, member, updateVerificationStatus: false);
+    }
 
-    return true;
-}
+    private async Task<bool> VerifyOtpCore(OTPCodeDTO codeDTO, Member? member, bool updateVerificationStatus)
+    {
+        if (member?.OTPs == null || !member.OTPs.Any())
+        {
+            return false;
+        }
+
+        var validOtp = member.OTPs.FirstOrDefault(x =>
+            x.OTPCode == codeDTO.Code &&
+            (DateTime.UtcNow - x.Timecreated).TotalMinutes <= 5);
+
+        if (validOtp == null)
+        {
+            return false;
+        }
+
+        await RevokeOTP(validOtp);
+
+        if (updateVerificationStatus)
+        {
+            member.IsVerifed = true;
+            await memberRepo.SaveChanges();
+        }
+
+        return true;
+    }
 
     
 }

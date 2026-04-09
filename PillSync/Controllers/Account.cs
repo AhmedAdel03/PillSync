@@ -36,6 +36,29 @@ namespace PillSync.Controllers
 
 
         }
+        [HttpPost("Forgot-password/request")]
+        public async Task<ActionResult> RequestForgotPassword(ForgotPasswordRequestDTO requestDTO)
+        {
+            var isSent = await accountService.RequestPasswordReset(requestDTO.EmailAddress);
+            if (!isSent)
+            {
+                return BadRequest("Email is not registered");
+            }
+
+            return Ok("Reset code sent to your email");
+        }
+
+        [HttpPost("Forgot-password/reset")]
+        public async Task<ActionResult> ForgotPassword(ForgotPasswordDTO forgotPasswordDTO)
+        {
+            var isReset = await accountService.ForgotPassword(forgotPasswordDTO);
+            if (!isReset)
+            {
+                return BadRequest("Invalid email or code");
+            }
+
+            return Ok("Password reset successfully");
+        }
         [Authorize]
         [HttpPost("Send-otp")]
        public async Task<ActionResult> SendOtp()

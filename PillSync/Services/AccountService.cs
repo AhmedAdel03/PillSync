@@ -9,8 +9,34 @@ using PillSync.Services.Interface;
 
 namespace PillSync.Services;
 
-public class AccountService(IMemberRepo memberRepo,ITokenService tokenService) : IAccountService
+public class AccountService(IMemberRepo memberRepo, ITokenService tokenService, IOTP otpService) : IAccountService
 {
+    public async Task<bool> ForgotPassword(ForgotPasswordDTO forgotPasswordDTO)
+    {
+        var user = await memberRepo.GetByEmail(forgotPasswordDTO.EmailAddress);
+        if (user == null || user.Member == null)
+        {
+            return false;
+        }
+
+        var otpCodeDto = new OTPCodeDTO
+        {
+            Code = forgotPasswordDTO.Code
+        };
+
+        var isOtpValid = await otpService.VerifyPasswordResetOTP(otpCodeDto, user.Member.Id);
+        if (!isOtpValid)
+        {
+            return false;
+        }
+
+        var hmac = new HMACSHA3_512();
+        user.Password = hmac.ComputeHash(Encoding.UTF8.GetBytes(forgotPasswordDTO.NewPassword));
+        user.PasswordKey = hmac.Key;
+        await memberRepo.SaveChanges();
+        return true;
+    }
+
     public async Task<UserDTOs> EditProfile(EditProfileDTO editProfileDTO,string memberId)
     {
        var CurrentUserData= await memberRepo.GetByID(memberId);
@@ -84,5 +110,17 @@ public class AccountService(IMemberRepo memberRepo,ITokenService tokenService) :
  
         }
         
+    }
+
+    public async Task<bool> RequestPasswordReset(string emailAddress)
+    {
+        var user = await memberRepo.GetByEmail(emailAddress);
+        if (user == null)
+        {
+            return false;
+        }
+
+        await otpService.SendOTP(emailAddress);
+        return true;
     }
 }

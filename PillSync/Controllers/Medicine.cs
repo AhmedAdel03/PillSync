@@ -82,6 +82,26 @@ namespace PillSync.Controllers
         
         
         }
+        [Authorize]
+        [HttpGet("showAlternative/{medicineName}")]
+        public async Task<ActionResult<object>> ShowAlternative(string medicineName)
+        {
+            var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (memberId == null) return Unauthorized();
+            try
+            {
+                var aiResponse = await medicineRepo.ShowAlternativesByAi(medicineName);
+                return Ok(new
+                {
+                    medicineName,
+                    response = aiResponse
+                });
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
 
 
