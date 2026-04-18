@@ -21,5 +21,8 @@ public class Medicine
  public Member? member { get; set; }
 public string? MemberId { get; set; }
 public bool IsDeleted { get; set; }=false;
+public int WeeklyTakenCount { get; set; } = 0;
+public int WeeklyMissedCount { get; set; } = 0;
+public DateTime WeeklyCounterStartDate { get; set; } = DateTime.UtcNow;
 
 }

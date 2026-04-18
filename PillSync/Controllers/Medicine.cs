@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PillSync.Data.Repo;
+using PillSync.DTOs;
 using PillSync.Entites;
 
 namespace PillSync.Controllers
@@ -101,6 +102,33 @@ namespace PillSync.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [Authorize]
+        [HttpPut("{MedicineId}/registerDose")]
+        public async Task<ActionResult> RegisterDoseStatus(string MedicineId, RegisterDoseStatusDTO dto)
+        {
+            var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (memberId == null) return Unauthorized();
+
+            var isUpdated = await medicineRepo.RegisterDoseStatus(MedicineId, memberId, dto.IsTaken);
+            if (!isUpdated)
+            {
+                return NotFound("medicine Not found");
+            }
+
+            return NoContent();
+        }
+
+        [Authorize]
+        [HttpGet("weeklyAdherence")]
+        public async Task<ActionResult<List<WeeklyAdherenceDTO>>> GetWeeklyAdherence()
+        {
+            var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (memberId == null) return Unauthorized();
+
+            var adherence = await medicineRepo.GetWeeklyAdherence(memberId);
+            return Ok(adherence);
         }
 
 
